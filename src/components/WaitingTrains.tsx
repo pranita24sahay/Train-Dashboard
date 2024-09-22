@@ -1,50 +1,63 @@
 import React from 'react';
+import styled from 'styled-components';
+import { TrainType } from '../types';
 
-const thStyle = {
-    padding: '10px',
-    textAlign: 'left',
-    fontWeight: 'bold',
-    borderBottom: '2px solid #ddd'
-};
+const Table = styled.table`
+    width: 100%;
+    border-collapse: collapse;
+`;
 
-const tdStyle = {
-    padding: '8px 12px',
-    borderBottom: '1px solid #ddd',
-    textAlign: 'left'
-};
+const Th = styled.th`
+    padding: 10px;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 2px solid #ddd;
+    background-color: #f5f5f5;
+`;
 
-const rowStyleEven = {
-    backgroundColor: '#f9f9f9'
-};
+const Td = styled.td`
+    padding: 8px 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+`;
 
-const rowStyleOdd = {
-    backgroundColor: '#fff'
-};
+const Tr = styled.tr<{ isEven: boolean }>`
+    background-color: ${({ isEven }) => (isEven ? '#f9f9f9' : '#fff')};
+`;
 
-const WaitingTrains = ({ getUnallocatedArrivedTrains }) => (
+const NoTrainsMessage = styled.p`
+    color: #777;
+    font-style: italic;
+`;
+
+interface WaitingTrainsProps {
+    getUnallocatedArrivedTrains: TrainType[];
+}
+
+const WaitingTrains = ({ getUnallocatedArrivedTrains }: WaitingTrainsProps) => (
     <div>
         <h2>Waiting Trains</h2>
         {getUnallocatedArrivedTrains.length > 0 ? (
-            <table style={{width: '100%', borderCollapse: 'collapse'}}>
+            <Table>
                 <thead>
-                <tr style={{backgroundColor: '#f5f5f5'}}>
-                    <th style={thStyle}>Train Number</th>
-                    <th style={thStyle}>Priority</th>
-                    <th style={thStyle}>Arrival Time</th>
+                <tr>
+                    <Th>Train Number</Th>
+                    <Th>Priority</Th>
+                    <Th>Arrival Time</Th>
                 </tr>
                 </thead>
                 <tbody>
                 {getUnallocatedArrivedTrains.map((train, index) => (
-                    <tr key={index} style={index % 2 === 0 ? rowStyleEven : rowStyleOdd}>
-                        <td style={tdStyle}>{train.trainNumber}</td>
-                        <td style={tdStyle}>{train.priority}</td>
-                        <td style={tdStyle}>{train.arrivalTime}</td>
-                    </tr>
+                    <Tr key={index} isEven={index % 2 === 0}>
+                        <Td>{train.trainNumber}</Td>
+                        <Td>{train.priority}</Td>
+                        <Td>{train.arrivalTime}</Td>
+                    </Tr>
                 ))}
                 </tbody>
-            </table>
+            </Table>
         ) : (
-            <p style={{color: '#777', fontStyle: 'italic'}}>No waiting trains at the moment</p>
+            <NoTrainsMessage>No waiting trains at the moment</NoTrainsMessage>
         )}
     </div>
 );

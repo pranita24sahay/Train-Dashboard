@@ -23,7 +23,11 @@ const departAnimation = keyframes`
   }
 `;
 
-const TrainContainer = styled.div`
+interface TrainProps {
+    isArriving: boolean;
+}
+
+const TrainContainer = styled.div<TrainProps>`
   display: flex;
   gap: 10px;
   align-items: center;
@@ -84,7 +88,7 @@ const CarWheel = styled.div`
 `;
 
 interface TrainProps {
-    isArriving?: boolean;
+    isArriving: boolean;
 }
 const Train = ({ isArriving }:TrainProps) => {
     return (

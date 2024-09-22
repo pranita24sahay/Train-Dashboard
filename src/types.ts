@@ -4,5 +4,6 @@ export interface TrainType {
     platform?: string;
     arrivalTime: string; // Optional if not always present
     departing?: boolean,
-    priority?: 'P1' | 'P2' | 'P3';
+    priority: 'P1' | 'P2' | 'P3';
+    delayed?: number; // Delay in minutes
 }

@@ -1,9 +1,9 @@
-import React, {ChangeEvent ,useState, useEffect, useMemo, useCallback} from 'react';
+import React, {ChangeEvent, useState, useEffect, useMemo, useCallback} from 'react';
 import {TOTAL_PLATFORMS} from "../constants";
 import {TrainType} from "../types";
 import {parseCSV} from '../utils/csvParser';
 import generateMockTrainData from '../utils/mockDataGenerator';
-import {combineDateAndTime, sortTrainsByPriority, createArrayFromInput} from "../utils/utils";
+import {combineDateAndTime, sortTrainsByPriority, createArrayFromInput, adjustTrainTimesForDelay} from "../utils/utils";
 import Platforms from "./Platforms";
 import TrainBoard from './TrainBoard';
 import HeaderActions from './Header';
@@ -14,15 +14,17 @@ const INITIAL_PLATFORMS = createArrayFromInput(TOTAL_PLATFORMS);
 
 interface StateUpdates {
     trains?: TrainType[];
-    platforms?: string[]; // Adjust this type based on your actual platforms type
+    platforms?: string[];
     allottedTrains?: TrainType[];
     fileUploaded?: boolean;
+    departingTrains?: string[];
 }
+
 interface State {
-    trains: TrainType[]; // Use your defined TrainType
+    trains: TrainType[];
     platforms: string[];
     allottedTrains: TrainType[];
-    departingTrains: TrainType[]; // Adjust as necessary
+    departingTrains: string[];
     fileUploaded: boolean;
 }
 
@@ -35,19 +37,19 @@ const TrainDashboard = () => {
         fileUploaded: false,
     });
 
-    const { trains, platforms, allottedTrains, departingTrains, fileUploaded } = state;
+    const {trains, platforms, allottedTrains, departingTrains, fileUploaded} = state as State;
 
     const updateState = (updates: StateUpdates) => {
         setState((prevState) => ({...prevState, ...updates}));
     };
 
     const handleFileUpload = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files[0];
-        parseCSV(file, (parsedTrains) => updateState({ trains: parsedTrains, fileUploaded: true }));
+        const file = e.target.files?.[0];
+        parseCSV(file, (parsedTrains: TrainType[]) => updateState({trains: parsedTrains, fileUploaded: true}));
     }, []);
 
     const handleGenerateMockData = useCallback(() => {
-        updateState({ trains: generateMockTrainData() });
+        updateState({trains: adjustTrainTimesForDelay(generateMockTrainData())});
     }, []);
 
     const allocatePlatform = useCallback(() => {
@@ -59,7 +61,7 @@ const TrainDashboard = () => {
             updateState({
                 trains: trains.filter(train => train.trainNumber !== trainToAllocate.trainNumber),
                 platforms: platforms.slice(1), // Remove assigned platform
-                allottedTrains: [...allottedTrains, { ...trainToAllocate, platform: platformToAssign }],
+                allottedTrains: [...allottedTrains, {...trainToAllocate, platform: platformToAssign}],
             });
         }
     }, [platforms, trains, allottedTrains]);
@@ -68,20 +70,23 @@ const TrainDashboard = () => {
         const now = new Date();
         let freedPlatforms = [];
         const remainingAllottedTrains = allottedTrains.filter(train => {
+            if (!train.departureTime) {
+                return true; // Or handle this case as needed (e.g., exclude from filtering)
+            }
             const departureTime = combineDateAndTime(now, train.departureTime);
-            if (now >= departureTime) {
-                triggerTrainDeparture(train.trainNumber, train.platform);
+            if (departureTime && now >= departureTime) {
+                triggerTrainDeparture(train.trainNumber, (train.platform as string));
                 freedPlatforms.push(train.platform);
                 return false;
             }
             return true;
         });
 
-        updateState({ allottedTrains: remainingAllottedTrains });
+        updateState({allottedTrains: remainingAllottedTrains});
     }, [allottedTrains]);
 
-    const triggerTrainDeparture = useCallback((trainNumber, platform) => {
-        updateState({ departingTrains: [...departingTrains, trainNumber] });
+    const triggerTrainDeparture = useCallback((trainNumber: string, platform: string) => {
+        updateState({departingTrains: [...departingTrains, trainNumber]});
 
         setTimeout(() => {
             updateState({
@@ -97,7 +102,7 @@ const TrainDashboard = () => {
 
         return trains.filter(train => {
             const trainArrivalTime = combineDateAndTime(now, train.arrivalTime);
-            const isArrived = now >= trainArrivalTime;
+            const isArrived = trainArrivalTime ? now >= trainArrivalTime : false;
             const isPlatformAssigned = allottedTrains.some(allotted => allotted.trainNumber === train.trainNumber);
             return isArrived && !isPlatformAssigned;
         });
@@ -119,8 +124,10 @@ const TrainDashboard = () => {
         }
     }, [fileUploaded]);
 
+    console.log({trains})
+
     return (
-        <div style={{textAlign:'center'}}>
+        <div style={{textAlign: 'center'}}>
             <h1>Train Schedule Dashboard</h1>
             <HeaderActions
                 handleFileUpload={handleFileUpload}

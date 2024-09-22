@@ -2,12 +2,14 @@
 import {priorityMap} from "../constants";
 import {TrainType} from "../types";
 
-
 export const sortTrainsByPriority = (trains: TrainType[]): TrainType[] => {
     return [...trains].sort((a, b) => {
-        if(a.priority == undefined || b.priority == undefined) return;
-        const priorityA = priorityMap[a.priority]; // No more error here
-        const priorityB = priorityMap[b.priority]; // No more error here
+        if (!a.priority || !b.priority) {
+            throw new Error('Invalid priority value'); // Handle undefined priority
+        }
+
+        const priorityA = priorityMap[a.priority];
+        const priorityB = priorityMap[b.priority];
 
         if (priorityA === priorityB) {
             return new Date(a.arrivalTime).getTime() - new Date(b.arrivalTime).getTime();
@@ -16,8 +18,35 @@ export const sortTrainsByPriority = (trains: TrainType[]): TrainType[] => {
         return priorityA - priorityB; // Lower number means higher priority
     });
 };
+// Format time to HH:mm:ss
+const formatTime = (date: Date): string => {
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+};
 
 
+export const adjustTrainTimesForDelay = (trains: TrainType[]): TrainType[] => {
+    return trains.map(train => {
+        if (train.delayed) {
+            const delayInMs = train.delayed * 60 * 1000; // Convert minutes to milliseconds
+
+            // Adjust arrival and departure times
+            const arrivalDate = new Date(`1970-01-01T${train.arrivalTime}Z`);
+            const departureDate = new Date(`1970-01-01T${train.departureTime}Z`);
+            arrivalDate.setTime(arrivalDate.getTime() + delayInMs);
+            departureDate.setTime(departureDate.getTime() + delayInMs);
+
+            return {
+                ...train,
+                arrivalTime: formatTime(arrivalDate),
+                departureTime: formatTime(departureDate),
+            };
+        }
+        return train; // Return the train unmodified if no delay
+    });
+};
 
 export const combineDateAndTime = (date:any, time:any) => {
     // Log inputs to debug undefined values
