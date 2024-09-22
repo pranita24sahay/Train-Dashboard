@@ -1,7 +1,6 @@
 import React from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 
-// Animations
 const arriveAnimation = keyframes`
   from {
     opacity: 0;
@@ -24,91 +23,79 @@ const departAnimation = keyframes`
   }
 `;
 
-// Container for each train's details
 const TrainContainer = styled.div`
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 15px;
-  margin-top: 10px;
-  transition: transform 0.3s ease-in-out;
-
-  &:hover {
-    transform: scale(1.02);
-    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
-  }
-`;
-
-// Row layout for the train information
-const TrainInfoRow = styled.div`
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  gap: 10px;
+  align-items: center;
+  ${({ isArriving }) =>
+          isArriving
+                  ? css`
+                    animation: ${arriveAnimation} 1s ease-out forwards;
+                  `
+                  : css`
+                    animation: ${departAnimation} 1s ease-in forwards;
+                  `}
 `;
 
-// Information for each train
-const TrainInfoLabel = styled.span`
-  font-size: 14px;
-  font-weight: bold;
-  color: #333;
+const Engine = styled.div`
+  width: 60px;
+  height: 38px;
+  background-color: #2c3e50;
+  position: relative;
+  border-radius: 3px;
 `;
 
-const TrainInfoValue = styled.span`
-  font-size: 14px;
-  color: #333;
+const Chimney = styled.div`
+  width: 10px;
+  height: 12px;
+  background-color: #34495e;
+  position: absolute;
+  top: -12px;
+  left: 5px;
+  border-radius: 3px 3px 0 0;
 `;
 
-// Button for train details
-const TrainButton = styled.button`
-  padding: 5px 12px;
-  background-color: #007bff;
-  border: none;
-  border-radius: 5px;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #0056b3;
-  }
+const EngineWheel = styled.div`
+  width: 12px;
+  height: 12px;
+  background-color: black;
+  border-radius: 50%;
+  position: absolute;
+  bottom: -8px;
+  left: 20px;
 `;
 
-// Define props for the Train component
-interface TrainProps {
-    trainNumber: string;
-    arrivalTime: string;
-    departureTime: string;
-    priority: string;
-    isArriving: boolean;
-}
+const Car = styled.div`
+  width: 60px;
+  height: 38px;
+  background-color: #3498db;
+  position: relative;
+  border-radius: 3px;
+`;
 
-const Train = ({
-                                         trainNumber,
-                                         arrivalTime,
-                                         departureTime,
-                                         priority,
-                                         isArriving,
-                                     }:TrainProps) => {
+const CarWheel = styled.div`
+  width: 12px;
+  height: 12px;
+  background-color: black;
+  border-radius: 50%;
+  position: absolute;
+  bottom: -8px;
+  left: 20px;
+`;
+
+const Train = ({ isArriving }) => {
     return (
-        <TrainContainer>
-            <TrainInfoRow>
-                <TrainInfoLabel>Train No:</TrainInfoLabel>
-                <TrainInfoValue>{trainNumber}</TrainInfoValue>
-            </TrainInfoRow>
-            <TrainInfoRow>
-                <TrainInfoLabel>Arrives:</TrainInfoLabel>
-                <TrainInfoValue>{arrivalTime}</TrainInfoValue>
-            </TrainInfoRow>
-            <TrainInfoRow>
-                <TrainInfoLabel>Departs:</TrainInfoLabel>
-                <TrainInfoValue>{departureTime}</TrainInfoValue>
-            </TrainInfoRow>
-            <TrainInfoRow>
-                <TrainInfoLabel>Priority:</TrainInfoLabel>
-                <TrainInfoValue>{priority}</TrainInfoValue>
-            </TrainInfoRow>
-            <TrainButton>Details</TrainButton>
+        <TrainContainer isArriving={isArriving}>
+            <Car>
+                <CarWheel />
+            </Car>
+            <Car>
+                <CarWheel />
+            </Car>
+            <Engine>
+                <Chimney />
+                <EngineWheel />
+            </Engine>
         </TrainContainer>
     );
 };
