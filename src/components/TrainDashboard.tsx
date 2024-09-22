@@ -34,9 +34,10 @@ const TrainDashboard = () => {
         platforms: INITIAL_PLATFORMS,
         allottedTrains: [],
         departingTrains: [],
+        fileUploaded: false,
     });
 
-    const { trains, platforms, allottedTrains, departingTrains } = state;
+    const { trains, platforms, allottedTrains, departingTrains, fileUploaded } = state;
 
     const updateState = (updates) => {
         setState((prevState) => ({ ...prevState, ...updates }));
@@ -44,7 +45,7 @@ const TrainDashboard = () => {
 
     const handleFileUpload = useCallback((e) => {
         const file = e.target.files[0];
-        parseCSV(file, (parsedTrains) => updateState({ trains: parsedTrains }));
+        parseCSV(file, (parsedTrains) => updateState({ trains: parsedTrains, fileUploaded: true }));
     }, []);
 
     const handleGenerateMockData = useCallback(() => {
@@ -103,6 +104,7 @@ const TrainDashboard = () => {
         });
     }, [trains, allottedTrains]);
 
+    // Periodically check and free platforms or allocate new trains
     useEffect(() => {
         const interval = setInterval(() => {
             if (allottedTrains.length) freePlatform();
@@ -112,12 +114,19 @@ const TrainDashboard = () => {
         return () => clearInterval(interval);
     }, [allocatePlatform, freePlatform, allottedTrains.length, platforms.length, trains.length]);
 
+    useEffect(() => {
+        if (fileUploaded) {
+            alert("File successfully uploaded!");
+        }
+    }, [fileUploaded]);
+
     return (
         <div>
             <h1>Train Schedule Dashboard</h1>
-            <input type="file" accept=".csv" onChange={handleFileUpload} />
-            <button onClick={handleGenerateMockData}>Generate Mock Train Data</button>
-
+            <HeaderActions>
+                <StyledInput type="file" accept=".csv" onChange={handleFileUpload} />
+                <StyledButton onClick={handleGenerateMockData}>Generate Mock Train Data</StyledButton>
+            </HeaderActions>
             <PlatformContainer>
                 {INITIAL_PLATFORMS.map((platform, index) => (
                     <Platform key={index}>
@@ -125,42 +134,49 @@ const TrainDashboard = () => {
                         {allottedTrains
                             .filter(train => train.platform === platform)
                             .map(train =>
-                                <TrainBox key={train.trainNumber}>
-                                    {train.trainNumber}
-                                </TrainBox>
-                            )}
+                                train?.departing ? (
+                                    <DepartingTrainBox key={train.trainNumber}>
+                                        {train.trainNumber} (Departing)
+                                    </DepartingTrainBox>
+                                ) : (
+                                    <TrainBox key={train.trainNumber}>
+                                        {train.trainNumber}
+                                    </TrainBox>
+                                )
+                            )
+                        }
                     </Platform>
                 ))}
             </PlatformContainer>
 
-            <TrainBoard trains={allottedTrains} />
-
-            <div>
-                <h2>Waiting Trains</h2>
-                {getUnallocatedArrivedTrains.length > 0 ? (
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead>
-                        <tr style={{ backgroundColor: '#f5f5f5' }}>
-                            <th style={thStyle}>Train Number</th>
-                            <th style={thStyle}>Priority</th>
-                            <th style={thStyle}>Arrival Time</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {getUnallocatedArrivedTrains.map((train, index) => (
-                            <tr key={index} style={index % 2 === 0 ? rowStyleEven : rowStyleOdd}>
-                                <td style={tdStyle}>{train.trainNumber}</td>
-                                <td style={tdStyle}>{train.priority}</td>
-                                <td style={tdStyle}>{train.arrivalTime}</td>
+            <DashboardGrid>
+                <TrainBoard trains={allottedTrains} />
+                <div>
+                    <h2>Waiting Trains</h2>
+                    {getUnallocatedArrivedTrains.length > 0 ? (
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                            <thead>
+                            <tr style={{ backgroundColor: '#f5f5f5' }}>
+                                <th style={thStyle}>Train Number</th>
+                                <th style={thStyle}>Priority</th>
+                                <th style={thStyle}>Arrival Time</th>
                             </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                ) : (
-                    <p style={{ color: '#777', fontStyle: 'italic' }}>No waiting trains at the moment</p>
-                )}
-            </div>
-
+                            </thead>
+                            <tbody>
+                            {getUnallocatedArrivedTrains.map((train, index) => (
+                                <tr key={index} style={index % 2 === 0 ? rowStyleEven : rowStyleOdd}>
+                                    <td style={tdStyle}>{train.trainNumber}</td>
+                                    <td style={tdStyle}>{train.priority}</td>
+                                    <td style={tdStyle}>{train.arrivalTime}</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <p style={{ color: '#777', fontStyle: 'italic' }}>No waiting trains at the moment</p>
+                    )}
+                </div>
+            </DashboardGrid>
         </div>
     );
 };
