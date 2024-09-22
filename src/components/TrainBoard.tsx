@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { TrainType} from "../types";
 
 // Styled Components for the glowing red effect
 const TrainBoardContainer = styled.div`
@@ -7,6 +8,9 @@ const TrainBoardContainer = styled.div`
   padding: 20px;
   width: 500px;
   border-radius: 10px;
+  margin: 0 20px;
+  font-family: 'Courier New', Courier, monospace;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 `;
 
 const TrainTable = styled.table`
@@ -34,7 +38,11 @@ const TrainCell = styled.td`
   text-shadow: 0px 0px 5px rgba(255, 0, 0, 0.75);
 `;
 
-const TrainBoard = ({ trains }) => {
+interface TrainBoardProps {
+    trains: TrainType[];
+}
+
+const TrainBoard = ({ trains } : TrainBoardProps) => {
     return (
         <div>
         <h2>Train Board</h2><TrainBoardContainer>

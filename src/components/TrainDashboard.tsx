@@ -1,5 +1,6 @@
-import {useState, useEffect, useMemo, useCallback} from 'react';
+import React, {ChangeEvent ,useState, useEffect, useMemo, useCallback} from 'react';
 import {TOTAL_PLATFORMS} from "../constants";
+import {TrainType} from "../types";
 import {parseCSV} from '../utils/csvParser';
 import generateMockTrainData from '../utils/mockDataGenerator';
 import {combineDateAndTime, sortTrainsByPriority, createArrayFromInput} from "../utils/utils";
@@ -11,8 +12,22 @@ import {DashboardGrid} from './styles';
 
 const INITIAL_PLATFORMS = createArrayFromInput(TOTAL_PLATFORMS);
 
+interface StateUpdates {
+    trains?: TrainType[];
+    platforms?: string[]; // Adjust this type based on your actual platforms type
+    allottedTrains?: TrainType[];
+    fileUploaded?: boolean;
+}
+interface State {
+    trains: TrainType[]; // Use your defined TrainType
+    platforms: string[];
+    allottedTrains: TrainType[];
+    departingTrains: TrainType[]; // Adjust as necessary
+    fileUploaded: boolean;
+}
+
 const TrainDashboard = () => {
-    const [state, setState] = useState({
+    const [state, setState] = useState<State>({
         trains: [],
         platforms: INITIAL_PLATFORMS,
         allottedTrains: [],
@@ -22,11 +37,11 @@ const TrainDashboard = () => {
 
     const { trains, platforms, allottedTrains, departingTrains, fileUploaded } = state;
 
-    const updateState = (updates) => {
+    const updateState = (updates: StateUpdates) => {
         setState((prevState) => ({...prevState, ...updates}));
     };
 
-    const handleFileUpload = useCallback((e) => {
+    const handleFileUpload = useCallback((e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files[0];
         parseCSV(file, (parsedTrains) => updateState({ trains: parsedTrains, fileUploaded: true }));
     }, []);

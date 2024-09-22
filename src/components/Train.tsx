@@ -83,7 +83,10 @@ const CarWheel = styled.div`
   left: 20px;
 `;
 
-const Train = ({ isArriving }) => {
+interface TrainProps {
+    isArriving?: boolean;
+}
+const Train = ({ isArriving }:TrainProps) => {
     return (
         <TrainContainer isArriving={isArriving}>
             <Car>

@@ -1,3 +1,4 @@
+import {TrainType} from "../types";
 import {
     PlatformContainer,
     Platform,
@@ -9,7 +10,12 @@ import {
 } from "./styles";
 import Train from './Train';  // Import the Train component
 
-const Platforms = ({ INITIAL_PLATFORMS, allottedTrains }) => {
+interface PlatformsProps {
+    INITIAL_PLATFORMS: string[];
+    allottedTrains: TrainType[];
+}
+
+const Platforms = ({ INITIAL_PLATFORMS, allottedTrains }:PlatformsProps) => {
     return (
         <PlatformContainer>
             {INITIAL_PLATFORMS.map((platform, index) => (

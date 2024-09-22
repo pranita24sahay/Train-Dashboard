@@ -1,15 +1,16 @@
 // Utility to check if the train should leave (i.e., past its departure time)
 import {priorityMap} from "../constants";
+import {TrainType} from "../types";
 
-// Sort trains by priority (P1 > P2 > P3)
-export const sortTrainsByPriority = (trains) => {
+
+export const sortTrainsByPriority = (trains: TrainType[]): TrainType[] => {
     return [...trains].sort((a, b) => {
-        const priorityA = priorityMap[a.priority];
-        const priorityB = priorityMap[b.priority];
+        if(a.priority == undefined || b.priority == undefined) return;
+        const priorityA = priorityMap[a.priority]; // No more error here
+        const priorityB = priorityMap[b.priority]; // No more error here
 
         if (priorityA === priorityB) {
-            // Sortt by arrival time
-            return new Date(a.arrivalTime) - new Date(b.arrivalTime);
+            return new Date(a.arrivalTime).getTime() - new Date(b.arrivalTime).getTime();
         }
 
         return priorityA - priorityB; // Lower number means higher priority
@@ -17,12 +18,12 @@ export const sortTrainsByPriority = (trains) => {
 };
 
 
-export const combineDateAndTime = (date, time) => {
+
+export const combineDateAndTime = (date:any, time:any) => {
     // Log inputs to debug undefined values
 
     // Check if time is undefined or not a string
     if (typeof time !== 'string') {
-        console.error("Invalid time provided. Time must be a string in HH:mm:ss format.", { time });
         return null;  // Return null to indicate an invalid time
     }
 
@@ -32,7 +33,7 @@ export const combineDateAndTime = (date, time) => {
     if (isTimeOnly) {
         // Get today's date and split the time
         const today = new Date();
-        const [hours, minutes, seconds] = time.split(':');
+        const [hours, minutes, seconds] = time.split(':').map(Number);
 
         // Set today's date with the time values from the string
         today.setHours(hours);
@@ -44,7 +45,7 @@ export const combineDateAndTime = (date, time) => {
 
     // If date is a Date object, combine it with the time
     if (date instanceof Date) {
-        const [hours, minutes, seconds] = time.split(':');
+        const [hours, minutes, seconds] = time.split(':').map(Number);
         date.setHours(hours);
         date.setMinutes(minutes);
         date.setSeconds(seconds);
@@ -56,6 +57,7 @@ export const combineDateAndTime = (date, time) => {
 };
 
 
-export const createArrayFromInput = (total) => {
+export const createArrayFromInput = (total: number): string[] => {
     return Array.from({ length: total }, (_, i) => `P${i + 1}`);
-}
+};
+

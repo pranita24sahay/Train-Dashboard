@@ -1,12 +1,5 @@
 import styled, { keyframes } from 'styled-components';
 
-// Styled component for the main header
-export const Header = styled.h1`
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-`;
-
 // Styled component for the header actions (file input and button)
 export const HeaderActions = styled.div`
   display: flex;
