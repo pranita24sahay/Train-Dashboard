@@ -76,9 +76,14 @@ const depart = keyframes`
     left: 450px; /* Moving off the platform */
   }
 `;
+interface TrainProps {
+    isDeparting: boolean; // Define the prop as required
+}
+
+
 
 // Train box that will be animated onto the platform
-export const TrainBox = styled.div`
+export const TrainBox = styled.div<TrainProps>`
   position: relative;
   height: 30px;
   width: 100px;

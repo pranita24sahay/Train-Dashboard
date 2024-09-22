@@ -50,14 +50,30 @@ const TrainDashboard = () => {
 
     const handleGenerateMockData = useCallback(() => {
         updateState({trains: adjustTrainTimesForDelay(generateMockTrainData())});
+        //    updateState({trains: (generateMockTrainData())});
+
     }, []);
+
+    const getUnallocatedArrivedTrains = useMemo(() => {
+        const now = new Date();
+
+        return trains.filter(train => {
+            const trainArrivalTime = combineDateAndTime(now, train.arrivalTime);
+            const isArrived = trainArrivalTime ? now >= trainArrivalTime : false;
+            const isPlatformAssigned = allottedTrains.some(allotted => allotted.trainNumber === train.trainNumber);
+            return isArrived && !isPlatformAssigned;
+        });
+    }, [trains, allottedTrains]);
 
     const allocatePlatform = useCallback(() => {
         if (platforms.length && trains.length) {
-            const sortedTrains = sortTrainsByPriority(trains);
+            const sortedTrains = sortTrainsByPriority(getUnallocatedArrivedTrains);
             const trainToAllocate = sortedTrains[0];
             const platformToAssign = platforms[0];
 
+            if (!trainToAllocate) {
+                return;
+            }
             updateState({
                 trains: trains.filter(train => train.trainNumber !== trainToAllocate.trainNumber),
                 platforms: platforms.slice(1), // Remove assigned platform
@@ -97,16 +113,6 @@ const TrainDashboard = () => {
         }, 2000);
     }, [allottedTrains, departingTrains, platforms]);
 
-    const getUnallocatedArrivedTrains = useMemo(() => {
-        const now = new Date();
-
-        return trains.filter(train => {
-            const trainArrivalTime = combineDateAndTime(now, train.arrivalTime);
-            const isArrived = trainArrivalTime ? now >= trainArrivalTime : false;
-            const isPlatformAssigned = allottedTrains.some(allotted => allotted.trainNumber === train.trainNumber);
-            return isArrived && !isPlatformAssigned;
-        });
-    }, [trains, allottedTrains]);
 
     // Periodically check and free platforms or allocate new trains
     useEffect(() => {

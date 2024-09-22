@@ -20,9 +20,9 @@ export const sortTrainsByPriority = (trains: TrainType[]): TrainType[] => {
 };
 // Format time to HH:mm:ss
 const formatTime = (date: Date): string => {
-    const hours = String(date.getUTCHours()).padStart(2, '0');
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
     return `${hours}:${minutes}:${seconds}`;
 };
 
@@ -30,14 +30,13 @@ const formatTime = (date: Date): string => {
 export const adjustTrainTimesForDelay = (trains: TrainType[]): TrainType[] => {
     return trains.map(train => {
         if (train.delayed) {
+            debugger
             const delayInMs = train.delayed * 60 * 1000; // Convert minutes to milliseconds
-
-            // Adjust arrival and departure times
-            const arrivalDate = new Date(`1970-01-01T${train.arrivalTime}Z`);
-            const departureDate = new Date(`1970-01-01T${train.departureTime}Z`);
+            const arrivalDate = formatDate(train.arrivalTime);
+            const departureDate = formatDate(train.departureTime)
             arrivalDate.setTime(arrivalDate.getTime() + delayInMs);
             departureDate.setTime(departureDate.getTime() + delayInMs);
-
+            console.log({arrivalDate, departureDate})
             return {
                 ...train,
                 arrivalTime: formatTime(arrivalDate),
@@ -48,7 +47,7 @@ export const adjustTrainTimesForDelay = (trains: TrainType[]): TrainType[] => {
     });
 };
 
-export const combineDateAndTime = (date:any, time:any) => {
+export const combineDateAndTime = (date: any, time: any) => {
     // Log inputs to debug undefined values
 
     // Check if time is undefined or not a string
@@ -81,12 +80,23 @@ export const combineDateAndTime = (date:any, time:any) => {
         return date; // Return the updated Date object
     }
 
-    console.error("Invalid date or time provided", { date, time });
+    console.error("Invalid date or time provided", {date, time});
     return null;  // Return null in case of invalid input
 };
 
 
 export const createArrayFromInput = (total: number): string[] => {
-    return Array.from({ length: total }, (_, i) => `P${i + 1}`);
+    return Array.from({length: total}, (_, i) => `P${i + 1}`);
 };
 
+const formatDate = (input: string): Date => {
+    const today = new Date();
+    const [hours, minutes, seconds] = input.split(':').map(Number);
+
+    // Set today's date with the time values from the string
+    today.setHours(hours);
+    today.setMinutes(minutes);
+    today.setSeconds(seconds);
+
+    return today; // Return the combined Date object
+}
