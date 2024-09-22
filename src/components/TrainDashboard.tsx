@@ -3,7 +3,7 @@ import { parseCSV } from '../utils/csvParser';
 import generateMockTrainData from '../utils/mockDataGenerator';
 import { combineDateAndTime, sortTrainsByPriority } from "../utils/utils";
 import TrainBoard from './TrainBoard';
-import { PlatformContainer, PlatformLabel, TrainBox, Platform } from './styles';
+import { PlatformContainer, PlatformLabel, TrainBox, Platform , StyledButton, StyledInput, HeaderActions, DashboardGrid, DepartingTrainBox } from './styles';
 
 const INITIAL_PLATFORMS = ['P1', 'P2', 'P3', 'P4', 'P5'];
 

@@ -1,5 +1,31 @@
 import styled, { keyframes } from 'styled-components';
 
+export const HeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+export const StyledButton = styled.button`
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+`;
+
+export const StyledInput = styled.input`
+  margin-right: 10px;
+`;
+
+
 // Keyframe for train arrival animation
 export const arrive = keyframes`
   0% {
@@ -63,4 +89,26 @@ export const TrainBox = styled.div`
   left: ${({isDeparting}) => (isDeparting ? '20px' : '-450px')}; /* Starting position */
   animation: ${({isDeparting}) => (isDeparting ? depart : arrive)} 2s forwards;
 \` ;
+`;
+
+export const DashboardGrid = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+`;
+
+export const DepartingTrainBox = styled(TrainBox)`
+  background-color: red;
+  color: white;
+  font-weight: bold;
+  animation: fadeOut 2s forwards;  // Ensure the animation lasts for 2 seconds
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
 `;

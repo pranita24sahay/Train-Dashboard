@@ -36,7 +36,8 @@ const TrainCell = styled.td`
 
 const TrainBoard = ({ trains }) => {
     return (
-        <TrainBoardContainer>
+        <div>
+        <h2>Train Board</h2><TrainBoardContainer>
             <TrainTable>
                 <thead>
                 <TrainRow>
@@ -58,6 +59,7 @@ const TrainBoard = ({ trains }) => {
                 </tbody>
             </TrainTable>
         </TrainBoardContainer>
+        </div>
     );
 };
 
